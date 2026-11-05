@@ -1,9 +1,16 @@
+
 import { NextRequest } from "next/server";
 import connectDB from "@/lib/mongodb";
 import Recipe from "@/models/Recipe";
 import { requireAdmin } from "@/lib/admin-auth";
 
-function escapeRegex(value: string) {
+interface RecipeIngredient {
+  name: string;
+  amount?: number | null;
+  unit?: string;
+}
+
+function escapeRegex(value: string): string {
   return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
@@ -14,12 +21,12 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const ingredientsParam = searchParams.get("ingredients");
 
-    const ingredients = ingredientsParam
+    const ingredients: string[] = ingredientsParam
       ? [
           ...new Set(
             ingredientsParam
               .split(",")
-              .map((item) => item.trim())
+              .map((item: string) => item.trim())
               .filter(Boolean)
           ),
         ]
@@ -38,7 +45,8 @@ export async function GET(request: NextRequest) {
     }
 
     const ingredientRegexes = ingredients.map(
-      (ingredient) => new RegExp(escapeRegex(ingredient), "i")
+      (ingredient: string) =>
+        new RegExp(escapeRegex(ingredient), "i")
     );
 
     const recipes = await Recipe.find({
@@ -54,12 +62,17 @@ export async function GET(request: NextRequest) {
 
     const matchedRecipes = recipes
       .map((recipe) => {
-        const matchedIngredients = ingredients.filter((selected) =>
-          recipe.ingredients.some((ingredient) =>
-            ingredient.name
-              .toLowerCase()
-              .includes(selected.toLowerCase())
-          )
+        const recipeIngredients =
+          recipe.ingredients as RecipeIngredient[];
+
+        const matchedIngredients = ingredients.filter(
+          (selected: string) =>
+            recipeIngredients.some(
+              (ingredient: RecipeIngredient) =>
+                ingredient.name
+                  .toLowerCase()
+                  .includes(selected.toLowerCase())
+            )
         );
 
         return {

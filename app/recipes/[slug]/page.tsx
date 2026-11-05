@@ -1,3 +1,4 @@
+
 import type { Metadata } from "next";
 import { connection } from "next/server";
 import { notFound } from "next/navigation";
@@ -23,7 +24,7 @@ interface RecipeInstruction {
 }
 
 interface RecipeData {
-  _id?: string;
+  _id: string;
   title: string;
   slug: string;
   description: string;
@@ -46,7 +47,9 @@ interface RecipeData {
   };
 }
 
-async function getRecipe(slug: string): Promise<RecipeData | null> {
+async function getRecipe(
+  slug: string
+): Promise<RecipeData | null> {
   await connection();
 
   await connectDB();
@@ -75,7 +78,8 @@ export async function generateMetadata({
   if (!recipe) {
     return {
       title: "Recipe Not Found | Everyday Kitchen",
-      description: "The recipe you are looking for could not be found.",
+      description:
+        "The recipe you are looking for could not be found.",
       robots: {
         index: false,
         follow: false,
@@ -86,7 +90,8 @@ export async function generateMetadata({
   const canonicalUrl = `${BASE_URL}/recipes/${recipe.slug}`;
 
   const title =
-    recipe.seo?.title || `${recipe.title} | Everyday Kitchen`;
+    recipe.seo?.title ||
+    `${recipe.title} | Everyday Kitchen`;
 
   const description =
     recipe.seo?.description || recipe.description;
@@ -175,9 +180,7 @@ export default async function RecipeDetailsPage({
     name: recipe.title,
     description: recipe.description,
 
-    image: recipe.image
-      ? [recipe.image]
-      : [],
+    image: recipe.image ? [recipe.image] : [],
 
     author: {
       "@type": "Organization",
@@ -193,15 +196,17 @@ export default async function RecipeDetailsPage({
 
     recipeYield: `${recipe.servings} servings`,
 
-    recipeIngredient: recipe.ingredients.map((ingredient) => {
-      const amount =
-        ingredient.amount !== null &&
-        ingredient.amount !== undefined
-          ? `${ingredient.amount} `
-          : "";
+    recipeIngredient: recipe.ingredients.map(
+      (ingredient) => {
+        const amount =
+          ingredient.amount !== null &&
+          ingredient.amount !== undefined
+            ? `${ingredient.amount} `
+            : "";
 
-      return `${amount}${ingredient.unit || ""} ${ingredient.name}`.trim();
-    }),
+        return `${amount}${ingredient.unit || ""} ${ingredient.name}`.trim();
+      }
+    ),
 
     recipeInstructions: recipe.instructions.map(
       (instruction, index) => ({
@@ -219,7 +224,10 @@ export default async function RecipeDetailsPage({
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
-          __html: JSON.stringify(recipeSchema).replace(/</g, "\\u003c"),
+          __html: JSON.stringify(recipeSchema).replace(
+            /</g,
+            "\\u003c"
+          ),
         }}
       />
 
