@@ -3,7 +3,7 @@ import connectDB from "@/lib/mongodb";
 import Recipe from "@/models/Recipe";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = "https://everyday-kitchen.vercel.app";
+  const baseUrl = "https://everyday-kitchens.vercel.app";
 
   await connectDB();
 
