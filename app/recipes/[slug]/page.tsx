@@ -31,14 +31,14 @@ interface RecipeData {
   image: string;
   imageAlt: string;
   category: string;
-  cuisine?: string;
+  cuisine: string;
   prepTime: number;
   cookTime: number;
   totalTime: number;
   servings: number;
   ingredients: RecipeIngredient[];
   instructions: RecipeInstruction[];
-  tips?: string[];
+  tips: string[];
   servingSuggestions?: string[];
   seo?: {
     title?: string;
@@ -63,7 +63,18 @@ async function getRecipe(
     return null;
   }
 
-  return JSON.parse(JSON.stringify(recipe)) as RecipeData;
+  const serializedRecipe = JSON.parse(
+    JSON.stringify(recipe)
+  ) as Omit<RecipeData, "cuisine" | "tips"> & {
+    cuisine?: string;
+    tips?: string[];
+  };
+
+  return {
+    ...serializedRecipe,
+    cuisine: serializedRecipe.cuisine || "Indian",
+    tips: serializedRecipe.tips || [],
+  };
 }
 
 // Dynamic SEO metadata for every recipe.
@@ -73,6 +84,7 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
+
   const recipe = await getRecipe(slug);
 
   if (!recipe) {
@@ -101,7 +113,7 @@ export async function generateMetadata({
     : [
         recipe.title,
         recipe.category,
-        recipe.cuisine || "Indian recipes",
+        recipe.cuisine,
         "Easy homemade recipes",
         "Everyday Kitchen",
       ];
@@ -188,7 +200,7 @@ export default async function RecipeDetailsPage({
     },
 
     recipeCategory: recipe.category,
-    recipeCuisine: recipe.cuisine || "Indian",
+    recipeCuisine: recipe.cuisine,
 
     prepTime: `PT${recipe.prepTime}M`,
     cookTime: `PT${recipe.cookTime}M`,
