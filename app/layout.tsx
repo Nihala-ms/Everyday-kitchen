@@ -81,6 +81,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={geistSans.variable}>
+      <meta name="google-site-verification" content="8VtczuGEMmZv8BdIchuBKfLNN9oKLUEgjpP3SnNcNgY" />
       <body>{children}</body>
     </html>
   );
