@@ -2,9 +2,9 @@ import type { MetadataRoute } from "next";
 import connectDB from "@/lib/mongodb";
 import Recipe from "@/models/Recipe";
 
-export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = "https://everyday-kitchens.vercel.app";
+const SITE_URL = "https://everyday-kitchens.vercel.app";
 
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   await connectDB();
 
   const recipes = await Recipe.find({ status: "published" })
@@ -13,22 +13,21 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   const staticPages: MetadataRoute.Sitemap = [
     {
-      url: baseUrl,
+      url: SITE_URL,
       lastModified: new Date(),
       changeFrequency: "daily",
       priority: 1,
     },
     {
-      url: `${baseUrl}/recipes`,
+      url: `${SITE_URL}/recipes`,
       lastModified: new Date(),
       changeFrequency: "daily",
       priority: 0.9,
     },
-    
   ];
 
   const recipePages: MetadataRoute.Sitemap = recipes.map((recipe) => ({
-    url: `${baseUrl}/recipes/${recipe.slug}`,
+    url: `${SITE_URL}/recipes/${recipe.slug}`,
     lastModified: recipe.updatedAt ?? new Date(),
     changeFrequency: "weekly",
     priority: 0.8,
