@@ -1,4 +1,3 @@
-
 import type { Metadata } from "next";
 import { Geist } from "next/font/google";
 import "./globals.css";
@@ -8,7 +7,7 @@ const geistSans = Geist({
   subsets: ["latin"],
 });
 
-const SITE_URL = "https://everyday-kitchen.vercel.app";
+const SITE_URL = "https://everyday-kitchens.vercel.app";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -35,14 +34,13 @@ export const metadata: Metadata = {
     "easy homemade food",
   ],
 
-  authors: [
-    {
-      name: "Everyday Kitchen",
-    },
-  ],
-
+  authors: [{ name: "Everyday Kitchen" }],
   creator: "Everyday Kitchen",
   publisher: "Everyday Kitchen",
+
+  verification: {
+    google: "8VtczuGEMmZv8BdIchuBKfLNN9oKLUEgjpP3SnNcNgY",
+  },
 
   robots: {
     index: true,
@@ -81,7 +79,6 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={geistSans.variable}>
-      <meta name="google-site-verification" content="8VtczuGEMmZv8BdIchuBKfLNN9oKLUEgjpP3SnNcNgY" />
       <body>{children}</body>
     </html>
   );
