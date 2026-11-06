@@ -1,11 +1,13 @@
-
 import connectDB from "@/lib/mongodb";
 import Recipe from "@/models/Recipe";
 
-// GET: Fetch a single recipe using its slug
+type RouteContext = {
+  params: Promise<{ slug: string }>;
+};
+
 export async function GET(
-  request: Request,
-  { params }: { params: Promise<{ slug: string }> }
+  _request: Request,
+  { params }: RouteContext
 ) {
   try {
     await connectDB();
@@ -14,6 +16,7 @@ export async function GET(
 
     const recipe = await Recipe.findOne({
       slug: slug.toLowerCase(),
+      status: "published",
     }).lean();
 
     if (!recipe) {
@@ -26,11 +29,18 @@ export async function GET(
       );
     }
 
-    return Response.json({
-      success: true,
-      message: "Recipe fetched successfully!",
-      recipe,
-    });
+    return Response.json(
+      {
+        success: true,
+        message: "Recipe fetched successfully!",
+        recipe,
+      },
+      {
+        headers: {
+          "Cache-Control": "no-store",
+        },
+      }
+    );
   } catch (error) {
     console.error("Fetch recipe error:", error);
 

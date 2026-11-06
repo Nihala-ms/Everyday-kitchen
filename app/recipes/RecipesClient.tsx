@@ -1,7 +1,6 @@
-
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import Link from "next/link";
 
 interface Recipe {
@@ -20,6 +19,10 @@ interface Recipe {
   createdAt?: string;
 }
 
+interface RecipesClientProps {
+  initialRecipes: Recipe[];
+}
+
 type SortOption = "latest" | "oldest" | "title";
 
 const categories = [
@@ -32,49 +35,15 @@ const categories = [
   "Drinks",
 ];
 
-export default function RecipesPage() {
-  const [recipes, setRecipes] = useState<Recipe[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+export default function RecipesClient({
+  initialRecipes,
+}: RecipesClientProps) {
+  const [recipes] = useState<Recipe[]>(initialRecipes);
 
   const [search, setSearch] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [selectedCuisine, setSelectedCuisine] = useState("All");
   const [sortBy, setSortBy] = useState<SortOption>("latest");
-
-  // Current year is set after the component mounts.
-  const [currentYear, setCurrentYear] = useState<number | null>(null);
-
-  useEffect(() => {
-    setCurrentYear(new Date().getFullYear());
-
-    async function fetchRecipes() {
-      try {
-        setLoading(true);
-        setError("");
-
-        const response = await fetch("/api/recipes", {
-          cache: "no-store",
-        });
-
-        const data = await response.json();
-
-        if (!response.ok || !data.success) {
-          throw new Error(data.message || "Unable to load recipes");
-        }
-
-        setRecipes(Array.isArray(data.recipes) ? data.recipes : []);
-      } catch (err) {
-        setError(
-          err instanceof Error ? err.message : "Something went wrong"
-        );
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    fetchRecipes();
-  }, []);
 
   const cuisines = useMemo(() => {
     return [
@@ -144,11 +113,9 @@ export default function RecipesPage() {
 
   return (
     <main className="min-h-screen bg-[#fffdf8] text-[#26352c]">
-
       {/* HEADER */}
       <header className="sticky top-0 z-40 border-b border-[#dce5d9] bg-[#e8eee5]/95 shadow-sm backdrop-blur">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6 lg:px-10">
-
           <Link
             href="/"
             className="text-xl font-bold tracking-tight text-[#315c43] transition hover:text-[#244630] sm:text-2xl"
@@ -157,21 +124,18 @@ export default function RecipesPage() {
           </Link>
 
           <nav className="flex items-center gap-5 text-sm font-semibold text-[#315c43] sm:gap-8">
-            <Link
-              href="/"
-              className="transition hover:text-[#b47a3e]"
-            >
+            <Link href="/" className="transition hover:text-[#b47a3e]">
               Home
             </Link>
 
             <Link
               href="/recipes"
+              aria-current="page"
               className="border-b-2 border-[#b47a3e] pb-1 text-[#a76d34]"
             >
               Recipes
             </Link>
           </nav>
-
         </div>
       </header>
 
@@ -206,7 +170,6 @@ export default function RecipesPage() {
       {/* SEARCH AND FILTERS */}
       <section className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-10">
         <div className="rounded-3xl border border-[#e8e5d9] bg-white p-5 shadow-[0_8px_30px_rgba(38,53,44,0.05)] sm:p-8">
-
           <div className="mb-7">
             <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#b47a3e]">
               Find your next favourite
@@ -218,7 +181,6 @@ export default function RecipesPage() {
           </div>
 
           <div className="grid gap-5 md:grid-cols-3">
-
             {/* SEARCH */}
             <div>
               <label
@@ -337,7 +299,6 @@ export default function RecipesPage() {
 
       {/* RECIPE GRID */}
       <section className="mx-auto max-w-7xl px-4 pb-20 sm:px-6 lg:px-10">
-
         <div className="mb-7 flex flex-wrap items-end justify-between gap-3">
           <div>
             <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#b47a3e]">
@@ -349,50 +310,12 @@ export default function RecipesPage() {
             </h2>
           </div>
 
-          {!loading && !error && (
-            <p className="text-sm text-[#7b857a]">
-              {filteredRecipes.length} results
-            </p>
-          )}
+          <p className="text-sm text-[#7b857a]">
+            {filteredRecipes.length} results
+          </p>
         </div>
 
-        {/* LOADING */}
-        {loading ? (
-          <div className="grid gap-7 sm:grid-cols-2 lg:grid-cols-3">
-            {Array.from({ length: 6 }).map((_, index) => (
-              <div
-                key={index}
-                className="animate-pulse overflow-hidden rounded-2xl border border-[#e9e7df] bg-white"
-              >
-                <div className="h-60 bg-[#e9ece5]" />
-
-                <div className="space-y-3 p-6">
-                  <div className="h-4 w-1/3 rounded bg-[#e9ece5]" />
-                  <div className="h-6 w-3/4 rounded bg-[#e9ece5]" />
-                  <div className="h-4 rounded bg-[#e9ece5]" />
-                  <div className="h-4 w-2/3 rounded bg-[#e9ece5]" />
-                </div>
-              </div>
-            ))}
-          </div>
-        ) : error ? (
-          /* ERROR */
-          <div className="rounded-3xl border border-red-100 bg-white p-10 text-center shadow-sm">
-            <h2 className="font-serif text-2xl font-semibold text-[#26352c]">
-              Unable to load recipes
-            </h2>
-
-            <p className="mt-3 text-sm text-red-600">{error}</p>
-
-            <button
-              onClick={() => window.location.reload()}
-              className="mt-6 rounded-full bg-[#315c43] px-7 py-3 font-semibold text-white transition hover:bg-[#243b2c]"
-            >
-              Try Again
-            </button>
-          </div>
-        ) : filteredRecipes.length === 0 ? (
-          /* EMPTY STATE */
+        {filteredRecipes.length === 0 ? (
           <div className="rounded-3xl border border-[#e8e5d9] bg-white px-5 py-16 text-center">
             <div className="text-5xl">🍽️</div>
 
@@ -405,6 +328,7 @@ export default function RecipesPage() {
             </p>
 
             <button
+              type="button"
               onClick={clearFilters}
               className="mt-6 rounded-full bg-[#315c43] px-7 py-3 font-semibold text-white transition hover:bg-[#243b2c]"
             >
@@ -412,14 +336,12 @@ export default function RecipesPage() {
             </button>
           </div>
         ) : (
-          /* RECIPES */
           <div className="grid items-stretch gap-7 sm:grid-cols-2 lg:grid-cols-3">
             {filteredRecipes.map((recipe) => (
               <article
                 key={recipe._id}
                 className="group flex h-full flex-col overflow-hidden rounded-2xl border border-[#e9e6dc] bg-white shadow-[0_5px_20px_rgba(38,53,44,0.04)] transition duration-300 hover:-translate-y-1 hover:border-[#cbd7c9] hover:shadow-[0_14px_35px_rgba(38,53,44,0.10)]"
               >
-                {/* IMAGE */}
                 <Link
                   href={`/recipes/${recipe.slug}`}
                   className="relative block h-60 shrink-0 overflow-hidden bg-[#f0eee4]"
@@ -442,7 +364,6 @@ export default function RecipesPage() {
                   </span>
                 </Link>
 
-                {/* CARD CONTENT */}
                 <div className="flex flex-1 flex-col p-6">
                   <div className="mb-3 flex flex-wrap items-center gap-2 text-xs font-medium text-[#858d82]">
                     <span>{recipe.cuisine || "Indian"}</span>
@@ -511,10 +432,9 @@ export default function RecipesPage() {
         </div>
 
         <div className="mx-auto mt-8 max-w-7xl border-t border-white/15 pt-5 text-center text-xs text-white/50">
-          © {currentYear ?? 2026} Everyday Kitchen. All rights reserved.
+          © {new Date().getFullYear()} Everyday Kitchen. All rights reserved.
         </div>
       </footer>
-
     </main>
   );
 }

@@ -1,4 +1,3 @@
-
 import { NextRequest } from "next/server";
 import connectDB from "@/lib/mongodb";
 import Recipe from "@/models/Recipe";
@@ -26,14 +25,16 @@ export async function GET(request: NextRequest) {
           ...new Set(
             ingredientsParam
               .split(",")
-              .map((item: string) => item.trim())
+              .map((item) => item.trim())
               .filter(Boolean)
           ),
         ]
       : [];
 
     if (ingredients.length === 0) {
-      const recipes = await Recipe.find({ status: "published" })
+      const recipes = await Recipe.find({
+        status: "published",
+      })
         .sort({ createdAt: -1 })
         .lean();
 
@@ -45,8 +46,7 @@ export async function GET(request: NextRequest) {
     }
 
     const ingredientRegexes = ingredients.map(
-      (ingredient: string) =>
-        new RegExp(escapeRegex(ingredient), "i")
+      (ingredient) => new RegExp(escapeRegex(ingredient), "i")
     );
 
     const recipes = await Recipe.find({
@@ -63,16 +63,14 @@ export async function GET(request: NextRequest) {
     const matchedRecipes = recipes
       .map((recipe) => {
         const recipeIngredients =
-          recipe.ingredients as RecipeIngredient[];
+          (recipe.ingredients || []) as RecipeIngredient[];
 
-        const matchedIngredients = ingredients.filter(
-          (selected: string) =>
-            recipeIngredients.some(
-              (ingredient: RecipeIngredient) =>
-                ingredient.name
-                  .toLowerCase()
-                  .includes(selected.toLowerCase())
-            )
+        const matchedIngredients = ingredients.filter((selected) =>
+          recipeIngredients.some((ingredient) =>
+            ingredient.name
+              .toLowerCase()
+              .includes(selected.toLowerCase())
+          )
         );
 
         return {
@@ -105,7 +103,6 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    // Only authenticated admins can upload recipes.
     const denied = await requireAdmin();
 
     if (denied) {
@@ -127,7 +124,10 @@ export async function POST(request: NextRequest) {
       )
     ) {
       return Response.json(
-        { success: false, message: "Invalid recipe data" },
+        {
+          success: false,
+          message: "Invalid recipe data",
+        },
         { status: 400 }
       );
     }
