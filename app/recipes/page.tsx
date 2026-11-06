@@ -4,8 +4,6 @@ import connectDB from "@/lib/mongodb";
 import Recipe from "@/models/Recipe";
 import RecipesClient from "./RecipesClient";
 
-export const dynamic = "force-dynamic";
-
 export const metadata: Metadata = {
   title: "All Kerala & Indian Recipes | Everyday Kitchen",
   description:
