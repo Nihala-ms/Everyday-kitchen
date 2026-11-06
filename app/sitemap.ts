@@ -25,10 +25,22 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
   ];
 
+  const uniqueSlugs = new Set<string>();
+
   const recipePages: MetadataRoute.Sitemap = recipes
-    .filter((recipe) => Boolean(recipe.slug))
+    .filter((recipe) => {
+      const slug =
+        typeof recipe.slug === "string" ? recipe.slug.trim() : "";
+
+      if (!slug || uniqueSlugs.has(slug)) {
+        return false;
+      }
+
+      uniqueSlugs.add(slug);
+      return true;
+    })
     .map((recipe) => ({
-      url: `${SITE_URL}/recipes/${recipe.slug}`,
+      url: `${SITE_URL}/recipes/${encodeURIComponent(recipe.slug.trim())}`,
       ...(recipe.updatedAt
         ? { lastModified: new Date(recipe.updatedAt) }
         : {}),

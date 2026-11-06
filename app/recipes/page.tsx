@@ -4,10 +4,8 @@ import connectDB from "@/lib/mongodb";
 import Recipe from "@/models/Recipe";
 import RecipesClient from "./RecipesClient";
 
-export const instant = false;
-
 export const metadata: Metadata = {
-  title: "All Kerala & Indian Recipes | Everyday Kitchen",
+  title: "All Kerala & Indian Recipes",
   description:
     "Explore easy Kerala and Indian recipes, including breakfast, lunch, dinner, snacks and desserts. Find delicious homemade recipes for everyday cooking.",
   alternates: {
@@ -34,25 +32,27 @@ export default async function RecipesPage() {
     .sort({ createdAt: -1 })
     .lean();
 
-  console.log("RECIPES FOUND:", databaseRecipes.length);
-
-  const recipes = databaseRecipes.map((recipe) => ({
-    _id: String(recipe._id),
-    title: recipe.title,
-    slug: recipe.slug,
-    description: recipe.description,
-    image: recipe.image,
-    imageAlt: recipe.imageAlt || recipe.title,
-    category: recipe.category,
-    cuisine: recipe.cuisine || "Indian",
-    prepTime: recipe.prepTime,
-    cookTime: recipe.cookTime,
-    totalTime: recipe.totalTime,
-    servings: recipe.servings,
-    createdAt: recipe.createdAt
-      ? new Date(recipe.createdAt).toISOString()
-      : undefined,
-  }));
+  const recipes = databaseRecipes
+    .filter((recipe) => Boolean(recipe.slug))
+    .map((recipe) => ({
+      _id: String(recipe._id),
+      title: recipe.title || "Untitled Recipe",
+      slug: recipe.slug,
+      description: recipe.description || "",
+      image: recipe.image || "",
+      imageAlt: recipe.imageAlt || recipe.title || "Homemade recipe",
+      category: recipe.category || "Other",
+      cuisine: recipe.cuisine || "Indian",
+      prepTime: recipe.prepTime || 0,
+      cookTime: recipe.cookTime || 0,
+      totalTime:
+        recipe.totalTime ??
+        (recipe.prepTime || 0) + (recipe.cookTime || 0),
+      servings: recipe.servings || 1,
+      createdAt: recipe.createdAt
+        ? new Date(recipe.createdAt).toISOString()
+        : undefined,
+    }));
 
   return <RecipesClient initialRecipes={recipes} />;
 }
