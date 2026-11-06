@@ -4,6 +4,8 @@ import connectDB from "@/lib/mongodb";
 import Recipe from "@/models/Recipe";
 import RecipesClient from "./RecipesClient";
 
+export const instant = false;
+
 export const metadata: Metadata = {
   title: "All Kerala & Indian Recipes",
   description:
