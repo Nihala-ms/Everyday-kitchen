@@ -77,27 +77,41 @@ export default function RecipeDetailClient({
   return (
     <main className="min-h-screen bg-[#fffaf4] pb-16">
       <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 lg:px-8">
-        <div className="mb-6 flex flex-wrap items-center gap-2 text-sm text-gray-500">
+
+        {/* Breadcrumb Navigation */}
+        <nav
+          aria-label="Breadcrumb"
+          className="mb-6 flex flex-wrap items-center gap-2 text-sm text-gray-500"
+        >
           <Link href="/" className="hover:text-orange-600">
             Home
           </Link>
+
           <span>/</span>
+
           <Link href="/recipes" className="hover:text-orange-600">
             Recipes
           </Link>
+
           <span>/</span>
-          <span className="font-medium text-gray-800">
+
+          <span
+            aria-current="page"
+            className="font-medium text-gray-800"
+          >
             {recipe.title}
           </span>
-        </div>
+        </nav>
 
         {cookingMode ? (
           <section className="mx-auto max-w-3xl rounded-3xl border border-orange-100 bg-white p-6 shadow-sm sm:p-10">
+
             <div className="mb-6 flex items-center justify-between gap-4">
               <div>
                 <p className="text-sm font-semibold uppercase tracking-wider text-orange-600">
                   Cooking Mode
                 </p>
+
                 <h1 className="mt-1 text-2xl font-bold text-gray-900">
                   {recipe.title}
                 </h1>
@@ -166,11 +180,12 @@ export default function RecipeDetailClient({
           </section>
         ) : (
           <>
+            {/* Recipe Header */}
             <section className="grid gap-8 lg:grid-cols-2 lg:items-center">
               <div className="overflow-hidden rounded-3xl bg-orange-100">
                 <img
                   src={recipe.image}
-                  alt={recipe.imageAlt}
+                  alt={recipe.imageAlt || recipe.title}
                   className="h-72 w-full object-cover sm:h-96"
                 />
               </div>
@@ -193,10 +208,25 @@ export default function RecipeDetailClient({
                 </p>
 
                 <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
-                  <Info label="Prep Time" value={`${recipe.prepTime} min`} />
-                  <Info label="Cook Time" value={`${recipe.cookTime} min`} />
-                  <Info label="Total Time" value={`${recipe.totalTime} min`} />
-                  <Info label="Servings" value={`${recipe.servings}`} />
+                  <Info
+                    label="Prep Time"
+                    value={`${recipe.prepTime} min`}
+                  />
+
+                  <Info
+                    label="Cook Time"
+                    value={`${recipe.cookTime} min`}
+                  />
+
+                  <Info
+                    label="Total Time"
+                    value={`${recipe.totalTime} min`}
+                  />
+
+                  <Info
+                    label="Servings"
+                    value={`${recipe.servings}`}
+                  />
                 </div>
 
                 <div className="mt-7 flex flex-wrap gap-3">
@@ -218,7 +248,10 @@ export default function RecipeDetailClient({
               </div>
             </section>
 
+            {/* Ingredients and Instructions */}
             <section className="mt-12 grid gap-8 lg:grid-cols-[0.85fr_1.15fr]">
+
+              {/* Ingredients */}
               <div className="rounded-3xl border border-orange-100 bg-white p-6 shadow-sm">
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <h2 className="text-2xl font-bold text-gray-900">
@@ -281,6 +314,7 @@ export default function RecipeDetailClient({
                                 } `
                               : ""}
                           </strong>
+
                           {ingredient.name}
                         </span>
                       </label>
@@ -295,6 +329,7 @@ export default function RecipeDetailClient({
                 )}
               </div>
 
+              {/* Instructions */}
               <div className="rounded-3xl border border-orange-100 bg-white p-6 shadow-sm">
                 <h2 className="text-2xl font-bold text-gray-900">
                   Instructions
@@ -302,7 +337,11 @@ export default function RecipeDetailClient({
 
                 <div className="mt-6 space-y-6">
                   {recipe.instructions.map((step, index) => (
-                    <div key={index} className="flex gap-4">
+                    <div
+                      key={index}
+                      id={`step-${index + 1}`}
+                      className="flex gap-4"
+                    >
                       <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-orange-100 font-bold text-orange-700">
                         {index + 1}
                       </span>
@@ -311,6 +350,7 @@ export default function RecipeDetailClient({
                         <h3 className="font-bold text-gray-900">
                           {step.title}
                         </h3>
+
                         <p className="mt-2 whitespace-pre-line leading-7 text-gray-600">
                           {step.description}
                         </p>
@@ -327,6 +367,7 @@ export default function RecipeDetailClient({
               </div>
             </section>
 
+            {/* Kitchen Tips */}
             {recipe.tips?.length > 0 && (
               <section className="mt-8 rounded-3xl border border-yellow-200 bg-yellow-50 p-6">
                 <h2 className="text-xl font-bold text-gray-900">
@@ -341,6 +382,7 @@ export default function RecipeDetailClient({
               </section>
             )}
 
+            {/* Explore More Recipes */}
             <div className="mt-10 text-center">
               <Link
                 href="/recipes"
@@ -397,7 +439,10 @@ function Info({
   return (
     <div className="rounded-2xl bg-white p-3 text-center shadow-sm">
       <p className="text-xs text-gray-500">{label}</p>
-      <p className="mt-1 font-bold text-gray-900">{value}</p>
+
+      <p className="mt-1 font-bold text-gray-900">
+        {value}
+      </p>
     </div>
   );
 }

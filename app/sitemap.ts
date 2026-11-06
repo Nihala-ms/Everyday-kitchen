@@ -1,3 +1,4 @@
+
 import type { MetadataRoute } from "next";
 import connectDB from "@/lib/mongodb";
 import Recipe from "@/models/Recipe";
@@ -13,25 +14,27 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   const staticPages: MetadataRoute.Sitemap = [
     {
-      url: SITE_URL,
-      lastModified: new Date(),
+      url: `${SITE_URL}/`,
       changeFrequency: "daily",
       priority: 1,
     },
     {
       url: `${SITE_URL}/recipes`,
-      lastModified: new Date(),
       changeFrequency: "daily",
       priority: 0.9,
     },
   ];
 
-  const recipePages: MetadataRoute.Sitemap = recipes.map((recipe) => ({
-    url: `${SITE_URL}/recipes/${recipe.slug}`,
-    lastModified: recipe.updatedAt ?? new Date(),
-    changeFrequency: "weekly",
-    priority: 0.8,
-  }));
+  const recipePages: MetadataRoute.Sitemap = recipes
+    .filter((recipe) => Boolean(recipe.slug))
+    .map((recipe) => ({
+      url: `${SITE_URL}/recipes/${recipe.slug}`,
+      ...(recipe.updatedAt
+        ? { lastModified: new Date(recipe.updatedAt) }
+        : {}),
+      changeFrequency: "weekly" as const,
+      priority: 0.8,
+    }));
 
   return [...staticPages, ...recipePages];
 }

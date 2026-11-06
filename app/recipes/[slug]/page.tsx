@@ -10,7 +10,7 @@ import RecipeDetailClient from "./recipe-detail-client";
 
 export const instant = false;
 
-const BASE_URL = "https://everyday-kitchen.vercel.app";
+const BASE_URL = "https://everyday-kitchens.vercel.app";
 
 interface RecipeIngredient {
   amount: number | null;
@@ -47,6 +47,7 @@ interface RecipeData {
   };
 }
 
+// Fetch published recipe.
 async function getRecipe(
   slug: string
 ): Promise<RecipeData | null> {
@@ -74,6 +75,8 @@ async function getRecipe(
     ...serializedRecipe,
     cuisine: serializedRecipe.cuisine || "Indian",
     tips: serializedRecipe.tips || [],
+    ingredients: serializedRecipe.ingredients || [],
+    instructions: serializedRecipe.instructions || [],
   };
 }
 
@@ -112,10 +115,9 @@ export async function generateMetadata({
     ? recipe.seo.keywords
     : [
         recipe.title,
+        `${recipe.title} recipe`,
         recipe.category,
-        recipe.cuisine,
-        "Easy homemade recipes",
-        "Everyday Kitchen",
+        `${recipe.cuisine} recipes`,
       ];
 
   return {
@@ -143,7 +145,7 @@ export async function generateMetadata({
       title,
       description,
       url: canonicalUrl,
-      siteName: "Everyday Kitchen",
+      siteName: "Everyday Kitchens",
       locale: "en_IN",
       type: "article",
       images: recipe.image
@@ -181,7 +183,17 @@ export default async function RecipeDetailsPage({
 
   const canonicalUrl = `${BASE_URL}/recipes/${recipe.slug}`;
 
-  // Recipe structured data for search engines.
+  // Recipe keywords.
+  const recipeKeywords = recipe.seo?.keywords?.length
+    ? recipe.seo.keywords
+    : [
+        recipe.title,
+        `${recipe.title} recipe`,
+        recipe.category,
+        `${recipe.cuisine} cuisine`,
+      ];
+
+  // Recipe structured data.
   const recipeSchema = {
     "@context": "https://schema.org",
     "@type": "Recipe",
@@ -194,9 +206,12 @@ export default async function RecipeDetailsPage({
 
     image: recipe.image ? [recipe.image] : [],
 
+    keywords: recipeKeywords.join(", "),
+
     author: {
       "@type": "Organization",
-      name: "Everyday Kitchen",
+      name: "Everyday Kitchens",
+      url: BASE_URL,
     },
 
     recipeCategory: recipe.category,
@@ -226,9 +241,16 @@ export default async function RecipeDetailsPage({
         position: index + 1,
         name: instruction.title,
         text: instruction.description,
+        url: `${canonicalUrl}#step-${index + 1}`,
       })
     ),
   };
+
+  // Safely serialize JSON-LD.
+  const jsonLd = JSON.stringify(recipeSchema).replace(
+    /</g,
+    "\\u003c"
+  );
 
   return (
     <>
@@ -236,14 +258,12 @@ export default async function RecipeDetailsPage({
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
-          __html: JSON.stringify(recipeSchema).replace(
-            /</g,
-            "\\u003c"
-          ),
+          __html: jsonLd,
         }}
       />
 
       <main className="min-h-screen overflow-x-hidden bg-[#fffdf8] text-[#26352c]">
+
         {/* Recipe content */}
         <RecipeDetailClient recipe={recipe} />
 
@@ -251,6 +271,7 @@ export default async function RecipeDetailsPage({
         <div className="mx-auto w-full max-w-6xl px-4 pb-16 sm:px-6 lg:px-8">
           <RecipeReviews slug={recipe.slug} />
         </div>
+
       </main>
     </>
   );
