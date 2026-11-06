@@ -1,3 +1,4 @@
+
 import type { Metadata } from "next";
 import connectDB from "@/lib/mongodb";
 import Recipe from "@/models/Recipe";
@@ -32,6 +33,8 @@ export default async function RecipesPage() {
     )
     .sort({ createdAt: -1 })
     .lean();
+
+  console.log("RECIPES FOUND:", databaseRecipes.length);
 
   const recipes = databaseRecipes.map((recipe) => ({
     _id: String(recipe._id),
