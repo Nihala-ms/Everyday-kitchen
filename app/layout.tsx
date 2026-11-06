@@ -1,4 +1,6 @@
+
 import type { Metadata } from "next";
+import Script from "next/script";
 import { Geist } from "next/font/google";
 import "./globals.css";
 
@@ -8,6 +10,7 @@ const geistSans = Geist({
 });
 
 const SITE_URL = "https://everyday-kitchens.vercel.app";
+const GA_MEASUREMENT_ID = "G-KPBLRZ5LXQ";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -79,6 +82,25 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={geistSans.variable}>
+      <head>
+        <Script
+          src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`}
+          strategy="afterInteractive"
+        />
+
+        <Script
+          id="google-analytics"
+          strategy="afterInteractive"
+        >
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){window.dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', '${GA_MEASUREMENT_ID}');
+          `}
+        </Script>
+      </head>
+
       <body>{children}</body>
     </html>
   );
